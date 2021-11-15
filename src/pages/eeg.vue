@@ -1,8 +1,11 @@
 <template>
-    <div class="echarts-box">
-        <div id="myEcharts" :style="{ width: '900px', height: '300px' }"></div>
-        {{ channel_name[0] }}
-    </div>
+    <q-page-container>
+        <div class="echarts-box">
+            <div id="myEcharts" :style="styleobject"></div>
+            {{ channel_name[0] }}
+            <div id="test"></div>
+        </div>
+    </q-page-container>
 </template>
 
 <script>
@@ -17,6 +20,11 @@ export default {
         let montage_type = ref(0)
         let channel_name = ref([])
 
+        let ww = document.documentElement.clientWidth
+        let fixed_ = ref("")
+
+        fixed_.value = ww - 170 + 'px'
+
         // get Channel name, and input array
         function get_channel_name (data, number) {
             for (let i = 0; i < number; i++) {
@@ -28,7 +36,7 @@ export default {
             const chartDom = document.getElementById('myEcharts')
             const myChart = echarts.init(chartDom)
             let json_url = 'http://10.65.51.240:28081/api/v1/eegData?start_time=' + start_time.value + '&end_time=' + end_time.value + '&montage_type=' + montage_type.value
-            console.log('end', end_time.value)
+            console.log('end', end_time)
 
             function count (number) {
                 const arr = []
@@ -38,6 +46,7 @@ export default {
                     sum = sum + base
                     arr.push(sum)
                 }
+                return arr;
             }
             axios.get(json_url).then((res) => {
                 //請求成功
@@ -61,7 +70,15 @@ export default {
                     },
                     yAxis: {
                         type: 'value',
-                        scale: true
+                        scale: true,
+                        // axisLabel: {
+                        //     show: true,
+                        //     showMinLabel: true,
+                        //     showMaxLabel: true,
+                        //     fromatter: function (value) {
+                        //         return value;
+                        //     }
+                        // }
                     },
                     series: {
                         type: 'line',
@@ -70,6 +87,8 @@ export default {
                         smoth: true
                     }
                 }
+
+                window.onresize
                 option && myChart.setOption(option);
 
 
@@ -80,8 +99,19 @@ export default {
             })
         })
 
-        return { channel_name }
+        return {
+            channel_name,
+            styleobject: {
+                width: fixed_.value,
+                height: '300px'
+            }
+        }
 
     }
 }
 </script>
+<style scoped>
+.echarts-box {
+    display: flex;
+}
+</style>

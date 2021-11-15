@@ -1,13 +1,15 @@
 <template>
-  <div class="echarts-box">
-    <div id="myEcharts" :style="{ width: '800px', height: '500px' }"></div>
-    <!-- <div>{{ ddddat }},{{ dddday }}</div> -->
-  </div>
+  <q-page-container>
+    <div class="echarts-box">
+      <div id="myEcharts" :style="styleobject"></div>
+      <!-- <div>{{ ddddat }},{{ dddday }}</div> -->
+    </div>
+  </q-page-container>
 </template>
 
 <script>
 import * as echarts from "echarts";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 export default {
   setup () {
     let ddddat = ref([]);
@@ -16,7 +18,10 @@ export default {
     let rangeY = ref([]);
     let last_dataX;
     let last_dataY;
+    let ww = document.documentElement.clientWidth
+    let fixed_ = ref("")
 
+    fixed_.value = ww - 170 + 'px'
     onMounted(() => {
       const chartDom = document.getElementById("myEcharts");
       const myChart = echarts.init(chartDom);
@@ -117,23 +122,37 @@ export default {
       //     let brushComponent = params;
       //     console.log("y軸", option.series[0].data[params.dataIndex]);
       //   });
-      myChart.on("brush", function (params) {
-        console.log("bruss", params);
-        let array_num = params.areas.length;
-        // debugger
-        last_dataX = params.areas[0].range[0];
-        last_dataY = params.areas[0].range[1];
-        // let minX = params.areas[array_num - 1].range[0][0];
-        // let maxX = params.areas[array_num - 1].range[0][1];
-        // let minY = params.areas[array_num - 1].range[array_num - 1][0];
-        // let maxY = params.areas[array_num - 1].range[array_num - 1][1];
-        console.log("aa", array_num);
-        ddddat.value = last_dataX;
-        dddday.value = last_dataY;
-      });
+      // myChart.on("brush", function (params) {
+      //   console.log("bruss", params);
+      //   let array_num = params.areas.length;
+      //   // debugger
+      //   last_dataX = params.areas[0].range[0];
+      //   last_dataY = params.areas[0].range[1];
+      //   // let minX = params.areas[array_num - 1].range[0][0];
+      //   // let maxX = params.areas[array_num - 1].range[0][1];
+      //   // let minY = params.areas[array_num - 1].range[array_num - 1][0];
+      //   // let maxY = params.areas[array_num - 1].range[array_num - 1][1];
+      //   console.log("aa", array_num);
+      //   ddddat.value = last_dataX;
+      //   dddday.value = last_dataY;
+      // });
       option && myChart.setOption(option);
     });
-    return { ddddat, dddday };
+    return {
+      ddddat, dddday,
+      styleobject: {
+        width: fixed_.value,
+        height: '300px'
+      }
+    };
   },
+
+  watch: {
+    "styleobject.width": function () {
+      console.log('dfdd')
+    }
+  }
 };
-</script>
+</script> 
+<style lang="SCSS ">
+</style>
