@@ -60,6 +60,7 @@ export default defineComponent({
     name: 'MainLayout',
     setup () {
         return {
+            tab: ref('Charts'),
             drawer: ref(false),
             miniState: ref(true),
         }

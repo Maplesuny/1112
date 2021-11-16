@@ -53,7 +53,7 @@ export default defineComponent({
     },
     setup () {
         return {
-            tab: ref('bar')
+            tab: ref('movies')
         }
     }
 })

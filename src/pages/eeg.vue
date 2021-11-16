@@ -2,14 +2,13 @@
     <q-page-container>
         <div class="echarts-box">
             <div id="myEcharts" :style="styleobject"></div>
-            {{ channel_name[0] }}
-            <div id="test"></div>
+            <div id="tes1t">{{ channel_name[0] }}</div>
         </div>
     </q-page-container>
 </template>
 
 <script>
-import { onMounted, ref, onBeforeUnmount } from 'vue';
+import { onMounted, ref } from 'vue';
 import axios from 'axios';
 import * as echarts from 'echarts';
 
@@ -19,43 +18,60 @@ export default {
         let end_time = ref(10)
         let montage_type = ref(0)
         let channel_name = ref([])
-
-        let ww = document.documentElement.clientWidth
+        // // 取得目前寬度，每次刷新比例會適中
+        let get_width = document.documentElement.clientWidth
         let fixed_ = ref("")
-
-        fixed_.value = ww - 170 + 'px'
-
+        fixed_.value = (get_width - 170) + 'px'
+        // count_array
+        const count_array = []
+        // merge_array
+        const merge_array = []
         // get Channel name, and input array
         function get_channel_name (data, number) {
             for (let i = 0; i < number; i++) {
                 channel_name.value.push(data[i]['id'])
             }
         }
+
+        function count (number) {
+            let base = end_time.value / number
+            let sum = 0
+            for (let i = 0; i < number; i++) {
+                sum = sum + base
+                count_array.push(sum)
+            }
+            return count_array;
+        }
+
         onMounted(() => {
             console.log('onMounted')
             const chartDom = document.getElementById('myEcharts')
             const myChart = echarts.init(chartDom)
             let json_url = 'http://10.65.51.240:28081/api/v1/eegData?start_time=' + start_time.value + '&end_time=' + end_time.value + '&montage_type=' + montage_type.value
             console.log('end', end_time)
-
-            function count (number) {
-                const arr = []
-                let base = end_time.value / number
-                let sum = 0
-                for (let i = 0; i < number; i++) {
-                    sum = sum + base
-                    arr.push(sum)
-                }
-                return arr;
-            }
             axios.get(json_url).then((res) => {
                 //請求成功
                 let data = res.data
                 let channel_length = data.length
                 get_channel_name(data, channel_length)
-                console.log('dfd', channel_name.value)
-                console.log('data[0', data[0])
-                console.log('second', data[0]['value'])
+                console.log('剛打進來', data)
+                // console.log('dfd', channel_name.value)
+                // console.log('data[0', data[0])
+                // console.log('second', data[0]['value'])
+                // 每筆資料筆數
+                let data_length = data[0]['value'].length
+                console.log(data_length)
+                console.log(data[0]['value'])
+                //每筆資料
+                let data_value = data[0]['value'][0]
+                for (let j = 0; j < data_length; j++) {
+                    merge_array.push([count(5120)[j], data[0]['value'][j]])
+                }
+
+                // console.log('1', count_array[0])
+                // console.log('2', data[0]['value'][0])
+                console.log('dfdffdffd', merge_array)
+
                 let option = {
                     title: {
                         text: data[0]['id'],
@@ -64,25 +80,43 @@ export default {
                         top: '25x'
                     },
                     xAxis: {
-                        type: 'category',
-                        boundaryGap: false,
-                        data: count(512 * end_time.value)
+                        type: 'value',
+                        boundaryGap: true,
+                        // data: count(512 * end_time.value),
+                        minorSplitLine: {
+                            show: true
+                        },
+                        minorTick: {
+                            // 顯示刻度線
+                            show: true,
+                            splitNumber: 2,
+                            length: 8
+                        },
+                        axisLabel: {
+                            show: true,
+                            interval: 1,
+                        },
+                        min: start_time.value,
+                        max: end_time.value
+
+
                     },
                     yAxis: {
+                        show: false,
                         type: 'value',
                         scale: true,
-                        // axisLabel: {
-                        //     show: true,
-                        //     showMinLabel: true,
-                        //     showMaxLabel: true,
-                        //     fromatter: function (value) {
-                        //         return value;
-                        //     }
-                        // }
+                        axisLabel: {
+                            show: true,
+                            showMinLabel: true,
+                            showMaxLabel: true,
+                            fromatter: function (value) {
+                                return value;
+                            }
+                        }
                     },
                     series: {
                         type: 'line',
-                        data: data[0]['value'],
+                        data: merge_array,
                         symbol: 'none',
                         smoth: true
                     }
