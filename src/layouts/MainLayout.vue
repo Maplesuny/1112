@@ -54,6 +54,7 @@ import { defineComponent, ref } from 'vue'
 import line from 'pages/line.vue'
 import bar from 'pages/bar.vue'
 import eeg from 'pages/eeg.vue'
+import test from 'pages/test.vue'
 export default defineComponent({
   name: 'MainLayout',
   components: {

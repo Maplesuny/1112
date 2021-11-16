@@ -4,6 +4,12 @@
             <div id="myEcharts" :style="styleobject"></div>
             <div id="tes1t">{{ channel_name[0] }}</div>
         </div>
+
+        <div id="pagination_class">
+            <q-btn>上一頁</q-btn>
+            <p>1</p>
+            <q-btn>下一頁</q-btn>
+        </div>
     </q-page-container>
 </template>
 
@@ -26,14 +32,20 @@ export default {
         const count_array = []
         // merge_array
         const merge_array = []
-        // get Channel name, and input array
+        // 目前頁數
+        let current_page = ref('')
+        // total page
+        let total_page = ref('')
+        // Json url
+        let json_url = 'http://10.65.51.240:28081/api/v1/eegData?start_time=' + start_time.value + '&end_time=' + end_time.value + '&montage_type=' + montage_type.value
+        // get Channel name, and push array
         function get_channel_name (data, number) {
             for (let i = 0; i < number; i++) {
                 channel_name.value.push(data[i]['id'])
             }
         }
-
-        function count (number) {
+        // 將資料筆數轉為時間
+        function convert_sec (number) {
             let base = end_time.value / number
             let sum = 0
             for (let i = 0; i < number; i++) {
@@ -42,35 +54,31 @@ export default {
             }
             return count_array;
         }
+        // 下一頁
+        // function next_page (start, end, mmontage) {
+        //     json_url = 'http://10.65.51.240:28081/api/v1/eegData?start_time=' + start + 10 + '&end_time=' + end + 10 + '&montage_type=' + mmontage
+        // }
 
         onMounted(() => {
             console.log('onMounted')
             const chartDom = document.getElementById('myEcharts')
             const myChart = echarts.init(chartDom)
-            let json_url = 'http://10.65.51.240:28081/api/v1/eegData?start_time=' + start_time.value + '&end_time=' + end_time.value + '&montage_type=' + montage_type.value
-            console.log('end', end_time)
             axios.get(json_url).then((res) => {
                 //請求成功
                 let data = res.data
                 let channel_length = data.length
                 get_channel_name(data, channel_length)
-                console.log('剛打進來', data)
-                // console.log('dfd', channel_name.value)
-                // console.log('data[0', data[0])
-                // console.log('second', data[0]['value'])
-                // 每筆資料筆數
+                console.log('剛打進來json', data)
+                // 第一筆資料長度
                 let data_length = data[0]['value'].length
-                console.log(data_length)
-                console.log(data[0]['value'])
-                //每筆資料
-                let data_value = data[0]['value'][0]
-                for (let j = 0; j < data_length; j++) {
-                    merge_array.push([count(5120)[j], data[0]['value'][j]])
-                }
+                console.log('第一筆資料長度', data_length)
 
-                // console.log('1', count_array[0])
-                // console.log('2', data[0]['value'][0])
-                console.log('dfdffdffd', merge_array)
+                // 要更動顯示的範圍只需更動data_length就好
+                for (let j = 0; j < data_length; j++) {
+                    merge_array.push([convert_sec(512 * end_time.value)[j], data[0]['value'][j]])
+                }
+                console.log('合併成value可以讀的object', merge_array)
+
 
                 let option = {
                     title: {
@@ -82,7 +90,6 @@ export default {
                     xAxis: {
                         type: 'value',
                         boundaryGap: true,
-                        // data: count(512 * end_time.value),
                         minorSplitLine: {
                             show: true
                         },
@@ -135,6 +142,10 @@ export default {
 
         return {
             channel_name,
+            start_time: ref(0),
+            end_time: ref(10),
+            montage_type: ref(0),
+            current: ref(1),
             styleobject: {
                 width: fixed_.value,
                 height: '300px'
@@ -147,5 +158,10 @@ export default {
 <style scoped>
 .echarts-box {
     display: flex;
+}
+#pagination_class {
+    display: flex;
+    justify-content: center;
+    justify-content: space-evenly;
 }
 </style>
