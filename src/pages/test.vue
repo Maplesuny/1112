@@ -1,31 +1,53 @@
 <template>
     <q-input v-model="firstName" label="Standard" />
     <q-input type="text" v-model="search2" />
-    <!-- <div id="demo">{{ fullName }}</div> -->
+    <div id="demo">{{ aa }}</div>
+    <q-btn @click="button" v-model="search2">dsfsdf</q-btn>
 </template>
 
 <script>
-import { ref, computed, watch } from 'vue'
+import { ref, watch, computed, onUpdated } from 'vue'
+// import { computed } from '@vue/composition-api';
 export default {
     setup () {
         //-------------------Vue 3 寫法-------------------------
-        // const firstName = ref('')
-        // const search2 = ref('')
-        // watch(firstName, (newValue, oldValue) => {
-        //     console.log('watch search', newValue, oldValue)
-        // })
+        const firstName = ref('')
+        const search2 = ref('')
+        watch(firstName, (newValue, oldValue) => {
+            console.log('watch search', newValue, oldValue)
+        })
         // watch(search2, () => {
         //     console.log('watch search2', search2.value)
         // })
 
-        // return { firstName, search2 }
-        //----------------------Vue3 寫法-----------------------
+
+        const aa = computed(() => {
+            return console.log(search2.value + ' ' + 'compunted'), search2.value + ' ' + 'compunted'
+            // return search2.value + ' ' + 'compunted'
+
+        })
+
+        function button () {
+            let aa = 'adf'
+            search2.value = aa
+        }
+
+
+
+        // const bb = search2.value + ' ' + 'computed'
+
+        onUpdated(() => {
+            console.log('onupdate')
+        })
+
+        return { firstName, search2, aa, button }
+        //----------------------↑ Vue3 寫法 ↑-----------------------
 
         //---------------------底下是vue2寫法-------------------
-        return {
-            firstName: ref('foo'),
-            lastName: ref('bar'),
-        }
+        // return {
+        //     firstName: ref('foo'),
+        //     lastName: ref('bar'),
+        // }
         //------------------------------------------------------
     },
 

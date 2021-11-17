@@ -9,7 +9,10 @@ const routes = [
       { path: '/bar', component: () => import('pages/bar.vue') },
       { path: '/line', component: () => import('pages/line.vue') },
       { path: '/eeg', component: () => import('pages/eeg.vue') },
-      { path: '/Total', component: () => import('components/Total.vue') }
+      { path: '/Total', component: () => import('components/Total.vue') },
+      { path: '/father', component: () => import('pages/props/father.vue') },
+      { path: '/father2', component: () => import('pages/props/Father2.vue') },
+      { path: '/buttom', component: () => import('components/buttom.vue') },
     ]
   },
 

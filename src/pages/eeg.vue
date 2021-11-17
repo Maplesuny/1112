@@ -6,20 +6,28 @@
         </div>
 
         <div id="pagination_class">
-            <q-btn>上一頁</q-btn>
+            <q-btn @click="change">上一頁</q-btn>
             <p>1</p>
-            <q-btn>下一頁</q-btn>
+            <q-btn @click="bbutton()">下一頁</q-btn>
         </div>
+        <div>start_time: {{ start_time }} , end_time: {{ end_time }}</div>
+        <div>{{ randomdddd }}</div>
     </q-page-container>
 </template>
 
 <script>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, reactive, watch, onUpdated, onBeforeUpdate, onBeforeUnmount } from 'vue';
 import axios from 'axios';
 import * as echarts from 'echarts';
 
 export default {
-    setup () {
+    props: {
+        s_startime: Number,
+        s_endtime: Number
+    },
+    setup (props) {
+        console.log('從buttom接收的值', props.s_startime)
+        console.log('從buttom接收的值', props.s_endtime)
         let start_time = ref(0)
         let end_time = ref(10)
         let montage_type = ref(0)
@@ -37,7 +45,43 @@ export default {
         // total page
         let total_page = ref('')
         // Json url
-        let json_url = 'http://10.65.51.240:28081/api/v1/eegData?start_time=' + start_time.value + '&end_time=' + end_time.value + '&montage_type=' + montage_type.value
+        // let json_url = 'http://10.65.51.240:28081/api/v1/eegData?start_time=' + start_time.value + '&end_time=' + end_time.value + '&montage_type=' + montage_type.value
+        let json_url = ref('')
+
+        let randomdddd = reactive({ song: [] })
+
+        // 將json url 透過function的方式帶出
+        function set (start, end, montage) {
+            json_url = 'http://10.65.51.240:28081/api/v1/eegData?start_time=' + start + '&end_time=' + end + '&montage_type=' + montage
+            return json_url.value
+        }
+
+        set(start_time.value, end_time.value, montage_type.value)
+
+        // 用computed來監聽變化
+        // const jjson = computed(() => {
+        //     return start_time.value, end_time.value, montage_type.value, json_url.value
+        // })
+        watch(start_time, () => {
+            console.log('start_time變化', start_time.value)
+        })
+
+        watch(end_time, () => {
+            console.log('end_time變化', end_time.value)
+        })
+
+        function bbutton () {
+            start_time.value = 0
+            end_time.value = 5
+            // set(start_time.value, end_time.value, montage_type.value)
+            console.log('button run')
+        }
+
+        function change () {
+            randomdddd.song.push('dsfdfd')
+            console.log('i am change')
+        }
+
         // get Channel name, and push array
         function get_channel_name (data, number) {
             for (let i = 0; i < number; i++) {
@@ -54,13 +98,10 @@ export default {
             }
             return count_array;
         }
-        // 下一頁
-        // function next_page (start, end, mmontage) {
-        //     json_url = 'http://10.65.51.240:28081/api/v1/eegData?start_time=' + start + 10 + '&end_time=' + end + 10 + '&montage_type=' + mmontage
-        // }
 
         onMounted(() => {
             console.log('onMounted')
+
             const chartDom = document.getElementById('myEcharts')
             const myChart = echarts.init(chartDom)
             axios.get(json_url).then((res) => {
@@ -78,7 +119,6 @@ export default {
                     merge_array.push([convert_sec(512 * end_time.value)[j], data[0]['value'][j]])
                 }
                 console.log('合併成value可以讀的object', merge_array)
-
 
                 let option = {
                     title: {
@@ -105,8 +145,6 @@ export default {
                         },
                         min: start_time.value,
                         max: end_time.value
-
-
                     },
                     yAxis: {
                         show: false,
@@ -128,23 +166,38 @@ export default {
                         smoth: true
                     }
                 }
-
-                window.onresize
                 option && myChart.setOption(option);
-
 
             }).catch((err) => {
                 //請求失敗
                 alert('請求失敗')
                 console.log('請求失敗', err)
             })
+            console.log('end')
+        })
+
+
+        onBeforeUpdate(() => {
+
+            console.log('onBeforeUpdate')
+
+        })
+        onUpdated(() => {
+            console.log('onUpdate')
+        })
+
+        onBeforeUnmount(() => {
+            console.log('onBeforeUnmount')
         })
 
         return {
+            bbutton,
+            change,
+            randomdddd,
+            start_time,
+            end_time,
+            montage_type,
             channel_name,
-            start_time: ref(0),
-            end_time: ref(10),
-            montage_type: ref(0),
             current: ref(1),
             styleobject: {
                 width: fixed_.value,
