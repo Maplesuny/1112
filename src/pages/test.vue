@@ -3,7 +3,7 @@
     <q-input type="text" v-model="search2" />
     <div id="demo">{{ aa }}</div>
     <q-btn @click="button" v-model="search2">dsfsdf</q-btn>
-</template>
+</template> 
 
 <script>
 import { ref, watch, computed, onUpdated } from 'vue'

@@ -12,11 +12,12 @@
         </div>
         <div>start_time: {{ start_time }} , end_time: {{ end_time }}</div>
         <div>{{ randomdddd }}</div>
+        <q-btn @click="butt2">sdfds</q-btn>
     </q-page-container>
 </template>
 
 <script>
-import { onMounted, ref, reactive, watch, onUpdated, onBeforeUpdate, onBeforeUnmount } from 'vue';
+import { onMounted, ref, reactive, watch, onUpdated, onBeforeUpdate, onBeforeUnmount, onUnmounted } from 'vue';
 import axios from 'axios';
 import * as echarts from 'echarts';
 
@@ -32,10 +33,11 @@ export default {
         let end_time = ref(10)
         let montage_type = ref(0)
         let channel_name = ref([])
+        const myChart = ref(null)
         // // 取得目前寬度，每次刷新比例會適中
         let get_width = document.documentElement.clientWidth
         let fixed_ = ref("")
-        fixed_.value = (get_width - 170) + 'px'
+        fixed_.value = (get_width - 250) + 'px'
         // count_array
         const count_array = []
         // merge_array
@@ -71,10 +73,22 @@ export default {
         })
 
         function bbutton () {
-            start_time.value = 0
+            start_time.value = 1
             end_time.value = 5
             // set(start_time.value, end_time.value, montage_type.value)
             console.log('button run')
+            let option = myChart.value.getOption()
+            option.xAxis[0].min = start_time.value
+            option.xAxis[0].max = end_time.value
+            console.log(option);
+            option && myChart.value.setOption(option);
+            console.log(myChart.value.getOption());
+        }
+
+        function butt2 () {
+            let option2 = myChart.value.getOption()
+            option2 && myChart.value.setOption(option2);
+            console.log('butt2')
         }
 
         function change () {
@@ -99,11 +113,9 @@ export default {
             return count_array;
         }
 
-        onMounted(() => {
-            console.log('onMounted')
-
+        function setoption (start, end) {
             const chartDom = document.getElementById('myEcharts')
-            const myChart = echarts.init(chartDom)
+            myChart.value = echarts.init(chartDom)
             axios.get(json_url).then((res) => {
                 //請求成功
                 let data = res.data
@@ -120,6 +132,8 @@ export default {
                 }
                 console.log('合併成value可以讀的object', merge_array)
 
+                console.log(start)
+                console.log(end)
                 let option = {
                     title: {
                         text: data[0]['id'],
@@ -129,7 +143,6 @@ export default {
                     },
                     xAxis: {
                         type: 'value',
-                        boundaryGap: true,
                         minorSplitLine: {
                             show: true
                         },
@@ -143,11 +156,11 @@ export default {
                             show: true,
                             interval: 1,
                         },
-                        min: start_time.value,
-                        max: end_time.value
+                        min: start,
+                        max: end
                     },
                     yAxis: {
-                        show: false,
+                        show: true,
                         type: 'value',
                         scale: true,
                         axisLabel: {
@@ -164,16 +177,62 @@ export default {
                         data: merge_array,
                         symbol: 'none',
                         smoth: true
-                    }
+                    },
+                    toolbox: {
+                        right: 10,
+                        feature: {
+                            dataZoom: {
+                                yAxisIndex: 'none'
+                            },
+                            restore: {},
+                            saveAsImage: {}
+                        }
+                    },
+                    brush: {
+                        id: 'brush',
+                        geoIndex: 'all',
+                        seriesIndex: 'all',
+                        brushLink: 'all',
+                        toolbox: ['rect', 'keep', 'lineX', 'clear'],
+                        inBrush: {
+                            opacity: 1,
+                            symbolSize: 20,
+                        },
+                        // 調整是否可平移
+                        transformable: false,
+                        throttleType: 'debounce',
+                        throttleDelay: 600,
+                        //   brushMode: 'multiple',
+                        brushStyle: {
+                            borderWidth: 3,
+                            color: 'rgba(245,39,56,0)',
+                            borderColor: 'rgba(220,20,57,0.8)',
+                        },
+                    },
+
+
                 }
-                option && myChart.setOption(option);
+
+
+
+                myChart.value.on('brushSelected', function (params) {
+                    let brushComponent = params.batch[0]
+                    console.log('dddddddddd', brushComponent)
+                })
+                option && myChart.value.setOption(option);
+
 
             }).catch((err) => {
                 //請求失敗
                 alert('請求失敗')
                 console.log('請求失敗', err)
             })
-            console.log('end')
+        }
+
+        setTimeout(butt2, 500);
+
+        onMounted(() => {
+            setoption(start_time.value, end_time.value)
         })
 
 
@@ -185,13 +244,19 @@ export default {
         onUpdated(() => {
             console.log('onUpdate')
         })
-
         onBeforeUnmount(() => {
+
             console.log('onBeforeUnmount')
+        })
+
+        onUnmounted(() => {
+
+            console.log('onUnmounted')
         })
 
         return {
             bbutton,
+            butt2,
             change,
             randomdddd,
             start_time,
