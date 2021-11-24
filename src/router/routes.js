@@ -12,6 +12,7 @@ const routes = [
       { path: '/Total', component: () => import('components/Total.vue') },
       { path: '/father', component: () => import('pages/props/father.vue') },
       { path: '/father2', component: () => import('pages/props/Father2.vue') },
+      { path: '/child2', component: () => import('pages/props/child2.vue') },
       { path: '/buttom', component: () => import('components/buttom.vue') },
     ]
   },
