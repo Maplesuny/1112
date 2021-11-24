@@ -17,7 +17,7 @@
                     <q-tab name="test" label="test" />
                 </q-tabs>
                 <q-separator />
-                <q-tab-panels v-model="tab">
+                <q-tab-panels v-model="tab" keep-alive>
                     <q-tab-panel name="bar">
                         <keep-alive>
                             <Bar></Bar>

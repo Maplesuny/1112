@@ -16,14 +16,9 @@ export default {
     name: "ChildComponent",
     props: {
         numbers: Array,
+        //我開一個東西給你把資料傳進來
         sss: Number
     },
-    // emits: {
-    //     open: val => {
-    //         console.log('val :', val)
-    //         return true
-    //     }
-    // },
     setup (props, context) {
 
         let sned_data = ref('childddddffssssf')
@@ -33,11 +28,7 @@ export default {
         })
         console.log('接收父親傳來的資訊', props.sss)
 
-        // {emit}
-        // function send_event () {
-        //     emit("open", sned_data.value)
-        // }
-
+        // emit傳送資料。使用context ，emit('事件名稱',要傳送的值)，事件名稱是在另一端要用到的
         function send_event () {
             context.emit('open', sned_data.value)
         }
